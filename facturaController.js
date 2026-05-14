@@ -150,7 +150,6 @@ async function updateFactura(req, res) {
     }
 
     const data = cleanFacturaPayload(req.body);
-
     const errors = validateFacturaPayload(data);
 
     if (errors.length) {
