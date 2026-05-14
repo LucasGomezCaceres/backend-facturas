@@ -46,7 +46,6 @@ async function createFactura(req, res) {
     );
 
     res.status(201).json({ ok: true });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al guardar factura." });
@@ -61,7 +60,6 @@ async function getFacturas(req, res) {
 
     if (q) {
       params.push(`%${q.toLowerCase()}%`);
-
       const qIndex = params.length;
 
       const searchClause = `
@@ -91,12 +89,9 @@ async function getFacturas(req, res) {
     );
 
     res.json(result.rows);
-
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      error: "Error al buscar facturas."
-    });
+    res.status(500).json({ error: "Error al buscar facturas." });
   }
 }
 
@@ -108,19 +103,13 @@ async function getFacturaById(req, res) {
     );
 
     if (result.rowCount === 0) {
-      return res.status(404).json({
-        error: "Registro no encontrado."
-      });
+      return res.status(404).json({ error: "Registro no encontrado." });
     }
 
     res.json(result.rows[0]);
-
   } catch (error) {
     console.error(error);
-
-    res.status(500).json({
-      error: "Error al obtener factura."
-    });
+    res.status(500).json({ error: "Error al obtener factura." });
   }
 }
 
@@ -132,30 +121,22 @@ async function updateFactura(req, res) {
     );
 
     if (current.rowCount === 0) {
-      return res.status(404).json({
-        error: "Registro no encontrado."
-      });
+      return res.status(404).json({ error: "Registro no encontrado." });
     }
 
     const record = current.rows[0];
 
-    if (
-      req.user.rol !== "ADMIN" &&
-      record.usuario_id !== req.user.id
-    ) {
+    if (req.user.rol !== "ADMIN" && record.usuario_id !== req.user.id) {
       return res.status(403).json({
         error: "No tiene permiso para modificar este registro."
       });
     }
 
     const data = cleanFacturaPayload(req.body);
-
     const errors = validateFacturaPayload(data);
 
     if (errors.length) {
-      return res.status(400).json({
-        error: errors.join(" ")
-      });
+      return res.status(400).json({ error: errors.join(" ") });
     }
 
     await pool.query(
@@ -192,13 +173,9 @@ async function updateFactura(req, res) {
     );
 
     res.json({ ok: true });
-
   } catch (error) {
     console.error(error);
-
-    res.status(500).json({
-      error: "Error al modificar factura."
-    });
+    res.status(500).json({ error: "Error al modificar factura." });
   }
 }
 
@@ -210,23 +187,10 @@ async function deleteFactura(req, res) {
     );
 
     res.json({ ok: true });
-
   } catch (error) {
     console.error(error);
-
-    res.status(500).json({
-      error: "Error al eliminar factura."
-    });
+    res.status(500).json({ error: "Error al eliminar factura." });
   }
-}
-async function getFacturaById(req, res) {
-  const result = await pool.query("SELECT * FROM facturas WHERE id = $1", [req.params.id]);
-
-  if (result.rowCount === 0) {
-    return res.status(404).json({ error: "Registro no encontrado." });
-  }
-
-  res.json(result.rows[0]);
 }
 
 module.exports = {
