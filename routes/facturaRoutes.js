@@ -7,7 +7,6 @@ router.use(authRequired);
 
 router.post("/", facturaController.createFactura);
 router.get("/", facturaController.getFacturas);
-router.get("/:id", facturaController.getFacturaById);
 router.put("/:id", facturaController.updateFactura);
 router.delete("/:id", adminRequired, facturaController.deleteFactura);
 
