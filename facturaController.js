@@ -26,8 +26,14 @@ async function createFactura(req, res) {
 async function getFacturas(req, res) {
   try {
     const q = String(req.query.q || "").trim();
+    const all = req.query.all === "true";
     const params = [];
     let where = "";
+
+    if (req.user.rol !== "ADMIN" || !all) {
+      params.push(req.user.id);
+      where = `WHERE usuario_id = $${params.length}`;
+    }
 
     if (q) {
       params.push(`%${q.toLowerCase()}%`);
@@ -35,7 +41,7 @@ async function getFacturas(req, res) {
       const searchClause = `
         LOWER(CONCAT_WS(' ', factura, fecha, proveedor, rut, pedido_compra, recepcion_sap, salida_sap,
         orden_compra, fecha_entrega, destino, observacion, usuario_correo)) LIKE $${qIndex}`;
-      where = `WHERE ${searchClause}`;
+      where = where ? `${where} AND ${searchClause}` : `WHERE ${searchClause}`;
     }
 
     const result = await pool.query(`SELECT * FROM facturas ${where} ORDER BY fecha_registro DESC`, params);
@@ -49,7 +55,9 @@ async function getFacturas(req, res) {
 async function getFacturaById(req, res) {
   const result = await pool.query("SELECT * FROM facturas WHERE id = $1", [req.params.id]);
   if (result.rowCount === 0) return res.status(404).json({ error: "Registro no encontrado." });
-  res.json(result.rows[0]);
+  const record = result.rows[0];
+  if (req.user.rol !== "ADMIN" && record.usuario_id !== req.user.id) return res.status(403).json({ error: "No tiene permiso para ver este registro." });
+  res.json(record);
 }
 
 async function updateFactura(req, res) {
