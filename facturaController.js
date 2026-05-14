@@ -60,6 +60,29 @@ async function getFacturaById(req, res) {
   res.json(record);
 }
 
+async function getFacturaById(req, res) {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM facturas WHERE id = $1",
+      [req.params.id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: "Registro no encontrado."
+      });
+    }
+
+    res.json(result.rows[0]);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Error al obtener factura."
+    });
+  }
+}
+
 async function updateFactura(req, res) {
   try {
     const current = await pool.query("SELECT * FROM facturas WHERE id = $1", [req.params.id]);
