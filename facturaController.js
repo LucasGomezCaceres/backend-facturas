@@ -192,6 +192,15 @@ async function deleteFactura(req, res) {
     res.status(500).json({ error: "Error al eliminar factura." });
   }
 }
+async function getFacturaById(req, res) {
+  const result = await pool.query("SELECT * FROM facturas WHERE id = $1", [req.params.id]);
+
+  if (result.rowCount === 0) {
+    return res.status(404).json({ error: "Registro no encontrado." });
+  }
+
+  res.json(result.rows[0]);
+}
 
 module.exports = {
   createFactura,
